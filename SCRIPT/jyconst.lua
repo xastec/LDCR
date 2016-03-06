@@ -135,7 +135,7 @@ function SetGlobalConst()
 	CC.HeadPicFile = {CONFIG.DataPath .. "hdgrp.idx", CONFIG.DataPath .. "hdgrp.grp"}
 	CC.HeadPath = CONFIG.DataPath .. "head/";
 	CC.MHeadPath = CONFIG.DataPath .. "mhead/";
-	CC.HeadNum = 327;
+	CC.HeadNum = 357;
   CC.ThingPicFile = {CONFIG.DataPath .. "thing.idx", CONFIG.DataPath .. "thing.grp"}
 
 	if CONFIG.MP3 == 1 then
@@ -1332,5 +1332,19 @@ CC.AddSpd = {
   CC.SkillFile = CONFIG.DataPath .."Skill";
   
 
-	require("MyOEvent");
+  require("MyOEvent");
+  require("ExtDefine");
+  CC.Alungky_Dir_Focus = CONFIG.FocusPath
+  --alungky 的常量
+  CC.Alungky_WXNName = "王香霓"
+  --690 event
+  CC.CSPosX1 = 40;
+  CC.CSPosY1 = 40;
+  --jywar.lua 5010 event
+  CC.CSPosX2 = 16;
+  CC.CSPosY2 = 53;
+  CC.CSPosX3 = 16;
+  CC.CSPosY3 = 54;
+--alungky 已经使用了的魔海位置
+--40,40    16,53　16,54
 end

@@ -3763,7 +3763,19 @@ function WarSelectTeam()
 		WAR.Data["自动选择参战人1"] = GetS(86,15,1,5);
 	end
   end
-  
+
+    --Alungky: 梦幻模拟战
+  if WAR.ZDDH == 246 then
+    local oneID = GetS(112,CC.CSPosX2,CC.CSPosY2,5);
+    local anotherID = GetS(112,CC.CSPosX3,CC.CSPosY3,5);
+    if oneID > 0 then
+      WAR.Data["自动选择参战人1"] = oneID;
+    end
+    if anotherID > 0 then
+      WAR.Data["敌人1"] = anotherID;
+    end
+  end
+
   --冰糖恋：单挑陈达海
 	if WAR.ZDDH == 92 and GetS(87,31,33,5) == 1 then
 	  	WAR.Data["自动选择参战人1"] = 0;
@@ -3888,15 +3900,17 @@ function WarSelectTeam()
   end
 end
 
-
-
-
---计算战斗人物贴图
+--计算战斗人物贴图 Alungky 新增部分人物使用特殊位移
 function WarCalPersonPic(id)
-  local n = 5106
+  local n = 5106;
+  local pID = WAR.Person[id]["人物编号"];
+  if pID > 593 and pID < 1000 then
+    n = 8262 - 329 * 8;
+  end
   n = n + JY.Person[WAR.Person[id]["人物编号"]]["头像代号"] * 8 + WAR.Person[id]["人方向"] * 2
   return n
 end
+
 --已方战斗时选择人物的菜单
 function WarSelectMenu(newmenu, newid)
   local id = newmenu[newid][4]

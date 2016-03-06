@@ -1,15 +1,26 @@
+--Alungky 黑白合训练处
+function Alungky_LianGong(idx)
+  local battleID = 245;
+  if idx == 1 then
+  	battleID = 210
+  elseif idx == 2 then
+  	battleID = 13
+  end 
+  return instruct_6(battleID, 8, 0, 1)
+end
 
 --传送地址列表
 function My_ChuangSong_List()
 	local menu = {};
-	for i=0, JY.SceneNum-1 do
+	local aviSceneNum = 107;
+	for i=0, aviSceneNum-1 do
 		menu[i+1] = {i..JY.Scene[i]["名称"], nil, 1};
 		if JY.Scene[i]["进入条件"] ~= 0 or  i == 84 or i == 83  or i == 82 or  i == 13 then
 			menu[i+1][3] = 0;
 		end
 	end
 	
-	local r = ShowMenu2(menu,JY.SceneNum,4,12,-1,-1,0,0,1,1,CC.DefaultFont,C_ORANGE, C_WHITE, "请选择传送地址");
+	local r = ShowMenu2(menu,aviSceneNum,4,12,-1,(CC.ScreenH-12*(CC.DefaultFont+CC.RowPixel))/2+20,0,0,1,1,CC.DefaultFont,C_ORANGE, C_WHITE, "请选择传送地址");
 	
 	if r == 0 then
 		return 0;
@@ -32,7 +43,696 @@ function My_ChuangSong_List()
 
 end
 
+function ALungky_show_bigImg(hid, str)
+    Cls()
+	lib.LoadPNG(98, hid*2, CC.ScreenW/2, CC.ScreenH/2, 0)
+	ShowScreen()
+	lib.Delay(300)
+	Cls()
+     for i = 12, 24 do
+        NewDrawString(-1, -1, str, C_GOLD, 30 + i)
+        ShowScreen()
+        if i == 24 then
+          Cls()
+          NewDrawString(-1, -1, str, C_GOLD, 30 + i)
+          ShowScreen()
+          lib.Delay(400)
+        else
+          lib.Delay(20)
+        end
+     end
+end
+--选择肉壶
+function ALungky_fk_rouhulist(name, idx)
+	local menu = {};
+	local fkNum = 13;
 
+	for i=0, fkNum-1 do
+		menu[i+1] = {i..CCX.RH_Name[i+1][1], nil, 1};
+	end
+	
+	local r = ShowMenu2(menu,fkNum,4,12,-1,(CC.ScreenH-12*(CC.DefaultFont+CC.RowPixel))/2+20,0,0,1,1,CC.DefaultFont,C_ORANGE, C_WHITE, "请选择您想要的肉壶");
+	
+	if r == 0 then
+		return 0;
+	end
+	
+	if r > 0 then
+		say("原来想要"..CCX.RH_Name[r][1].."来服侍你呀……请稍等，我马上把她传送过来哦～",idx,0,name);
+		Alungky_human_act(CCX.RH_Name[r][2],r,CCX.RH_Name[r][1],CCX.RH_FStr[r]);
+
+	end
+	
+	return 1;
+
+end
+
+function Alungky_Name_List(side)
+	local menu = {};
+	local NameNum = JY.PersonNum;
+	local tres = 500;
+	local k = 0;
+	for i=0, NameNum-1 do
+		if JY.Person[i]["生命最大值"] > tres then
+			menu[k+1] = {i..JY.Person[i]["姓名"], nil, 1};
+			k = k+1;
+		end
+	end
+	
+	local r = ShowMenu2(menu,k,4,12,-1,(CC.ScreenH-12*(CC.DefaultFont+CC.RowPixel))/2+20,0,0,1,1,CC.DefaultFont,C_ORANGE, C_WHITE, "请选择人物");
+	
+	if r == 0 then
+		return 0;
+	end
+
+	local rpos = 0;
+	if r > 0 then	
+		
+		local sid = r-1;
+		k = 0;
+		for j=0, NameNum-1 do
+			if JY.Person[j]["生命最大值"] > tres then
+				k = k+1;
+			end
+
+			if k == r then
+				rpos = j;
+				break;
+			end;
+		end
+		if side == 0 then
+			SetS(112,CC.CSPosX2,CC.CSPosY2,5,rpos);
+	    else
+	    	SetS(112,CC.CSPosX3,CC.CSPosY3,5,rpos);
+	    end
+	end
+	
+	return rpos;
+
+end
+function Alungky_getSubName(name)
+	local len = string.len(name);
+	if len >= 6 then
+	   return string.sub(name,len-3);
+	end
+    return name;
+end
+--传送到血魔结界
+function Alungky_tranfort_XMJJ()
+	local XMJJ_ID = 107;
+	My_Enter_SubScene(XMJJ_ID,8,32,-1);
+end
+
+function Alungky_tranfort_XMJJ_LiLian()
+	local XMJJ_ID = 107;
+	My_Enter_SubScene(XMJJ_ID,29,11,-1);
+end
+
+--传送到小村
+function Alungky_tranfort_XC()
+	local XC_ID = 70;
+	My_Enter_SubScene(XC_ID,27,27,-1);
+end
+
+--传送到幻境
+function Alungky_tranfort_HJ()
+	local XC_ID = 113;
+	My_Enter_SubScene(XC_ID,27,30,-1);
+end
+
+function Alungky_show_pic(name)
+	lib.LoadPicture(CONFIG.PicturePath .. name .. ".png",-1,-1);
+	ShowScreen();
+	lib.Delay(300)
+end
+
+function Alungky_show_pic2(dir,name,dey)
+	lib.LoadPicture(CONFIG.PicturePath .."/" .. dir .. "/" ..name .. ".png",-1,-1);
+	ShowScreen();
+	lib.Delay(dey)
+end
+
+function AlungkySaywithPNG(s,texID,flag,name)          --个人新对话
+	local picw=CC.PortraitPicWidth;       --最大头像图片宽高
+	local pich=CC.PortraitPicHeight;
+	local talkxnum=18;         --对话一行字数
+	local talkynum=3;          --对话行数
+	local dx=2 * CC.Scale;
+	local dy=2 * CC.Scale;
+	local nbx=96 * CC.Scale;   --姓名框宽度
+	local nby=27 * CC.Scale;   --姓名框高度
+	local boxpicw=picw+10 * CC.Scale;
+	local boxpich=pich+10 * CC.Scale;
+	local boxtalkw=talkxnum*CC.DefaultFont+10;
+	local boxtalkh=boxpich-nby;
+
+	name=name or "未命名"
+    local talkBorder = (boxtalkh - talkynum * CC.DefaultFont) / (talkynum+1);
+
+	--显示头像和对话的坐标
+    local xy={ [0]={headx=dx,heady=dy,
+	                talkx=dx+boxpicw+2,talky=dy+nby,
+					namex=dx+boxpicw+2,namey=dy,
+					showhead=1},--左上
+                   {headx=CC.ScreenW-1-dx-boxpicw,heady=CC.ScreenH-dy-boxpich,
+				    talkx=CC.ScreenW-1-dx-boxpicw-boxtalkw-2,talky= CC.ScreenH-dy-boxpich+nby,
+					namex=CC.ScreenW-1-dx-boxpicw-nbx,namey=CC.ScreenH-dy-boxpich,
+					showhead=1},--右下
+                   {headx=dx,heady=dy,
+				   talkx=dx+boxpicw-43 * CC.Scale,talky=dy+nby,
+					namex=dx+boxpicw+2,namey=dy,
+				   showhead=0},--上中
+                   {headx=CC.ScreenW-1-dx-boxpicw,heady=CC.ScreenH-dy-boxpich,
+				   talkx=CC.ScreenW-1-dx-boxpicw-boxtalkw-2,talky= CC.ScreenH-dy-boxpich+nby,
+					namex=CC.ScreenW-1-dx-boxpicw-nbx,namey=CC.ScreenH-dy-boxpich,
+					showhead=1},
+                   {headx=CC.ScreenW-1-dx-boxpicw,heady=dy,
+				    talkx=CC.ScreenW-1-dx-boxpicw-boxtalkw-2,talky=dy+nby,
+					namex=CC.ScreenW-1-dx-boxpicw-nbx,namey=dy,
+					showhead=1},--右上
+                   {headx=dx,heady=CC.ScreenH-dy-boxpich,
+				   talkx=dx+boxpicw+2,talky=CC.ScreenH-dy-boxpich+nby,
+					namex=dx+boxpicw+2,namey=CC.ScreenH-dy-boxpich,
+				   showhead=1}, --左下
+			}
+
+    if flag<0 or flag>5 then
+        flag=0;
+    end
+	local headid = 0;
+
+  if xy[flag].showhead == 0 then
+    headid = -1
+  end
+
+
+    if CONFIG.KeyRepeat==0 then
+	     lib.EnableKeyRepeat(0,CONFIG.KeyRepeatInterval);
+	end
+    lib.GetKey();
+
+	local function readstr(str)
+		local T1={"０","１","２","３","４","５","６","７","８","９"}
+		local T2={{"Ｒ",C_RED},{"Ｇ",C_GOLD},{"Ｂ",C_BLACK},{"Ｗ",C_WHITE},{"Ｏ",C_ORANGE}}
+		local T3={{"Ｈ",CC.FontNameSong},{"Ｓ",CC.FontNameHei},{"Ｆ",CC.FontName}}
+		--美观起见，针对不同字体同一行显示，需要微调ｙ坐标，以及字号
+		--以默认的字体为标准，启体需下移，细黑需上移
+		for i=0,9 do
+			if T1[i+1]==str then return 1,i*50 end
+		end
+		for i=1,5 do
+			if T2[i][1]==str then return 2,T2[i][2] end
+		end
+		for i=1,3 do
+			if T3[i][1]==str then return 3,T3[i][2] end
+		end
+		return 0
+	end
+
+	local function mydelay(t)
+		if t<=0 then return end
+		lib.ShowSurface(0)
+		lib.Delay(t)
+	end
+
+	local page, cy, cx = 0, 0, 0
+  local color, t, font = C_WHITE, 0, CC.FontName
+  while string.len(s) >= 1 do
+    if page == 0 then
+      Cls()
+      if headid >= 0 then
+        DrawBox(xy[flag].headx, xy[flag].heady, xy[flag].headx + boxpicw, xy[flag].heady + boxpich, C_WHITE)
+        DrawBox(xy[flag].namex, xy[flag].namey, xy[flag].namex + nbx, xy[flag].namey + nby, C_WHITE)
+        MyDrawString(xy[flag].namex, xy[flag].namex + nbx, xy[flag].namey + 1, name, C_ORANGE, 21 * CC.Scale)
+		local w, h = lib.GetPNGXY(1, headid*2)
+        local x = (picw - w) / 2
+        local y = (pich - h) / 2
+		lib.LoadPicture(CONFIG.PicturePath .. "/".."human/".. texID .. ".png",xy[flag].headx + 5 + x,xy[flag].heady + 5 + y);
+      end
+      DrawBox(xy[flag].talkx, xy[flag].talky, xy[flag].talkx + boxtalkw, xy[flag].talky + boxtalkh, C_WHITE)
+      page = 1
+    end
+		local str
+		str=string.sub(s,1,1)
+		if str=='*' then
+			str='Ｈ'
+			s=string.sub(s,2,-1)
+		else
+			if string.byte(s,1,1) > 127 then		--判断单双字符
+				str=string.sub(s,1,2)
+				s=string.sub(s,3,-1)
+			else
+				str=string.sub(s,1,1)
+				s=string.sub(s,2,-1)
+			end
+		end
+		--开始控制逻辑
+		if str=="Ｈ" then
+			cx=0
+			cy=cy+1
+			if cy==3 then
+				cy=0
+				page=0
+			end
+		elseif str=="Ｐ" then
+			cx=0
+			cy=0
+			page=0
+		elseif str=="ｐ" then
+			ShowScreen();
+			WaitKey();
+			lib.Delay(100)
+		elseif str=="Ｎ" then
+			s=JY.Person[pid]["姓名"]..s
+		elseif str=="ｎ" then
+			s=JY.Person[0]["姓名"]..s
+		else
+			local kz1,kz2=readstr(str)
+			if kz1==1 then
+				t=kz2
+			elseif kz1==2 then
+				color=kz2
+			elseif kz1==3 then
+				font=kz2
+			else
+				lib.DrawStr(xy[flag].talkx+CC.DefaultFont*cx+5,
+							xy[flag].talky+(CC.DefaultFont+talkBorder)*cy+talkBorder-8,
+							str,color,CC.DefaultFont,font,0,0, 255)
+				mydelay(t)
+				cx=cx+string.len(str)/2
+				if cx==talkxnum then
+					cx=0
+					cy=cy+1
+					if cy==talkynum then
+						cy=0
+						page=0
+					end
+				end
+			end
+		end
+		--如果换页，则显示，等待按键
+		if page==0 or string.len(s)<1 then
+			ShowScreen();
+			WaitKey();
+			lib.Delay(100)
+		end
+
+	end
+
+
+    if CONFIG.KeyRepeat==0 then
+	     lib.EnableKeyRepeat(CONFIG.KeyRepeatDelay,CONFIG.KeyRepeatInterval);
+	end
+
+	Cls();
+end
+
+function AlungkySaywithPic(s,pid,flag,name,fid)          --个人新对话
+	local picw=CC.PortraitPicWidth;       --最大头像图片宽高
+	local pich=CC.PortraitPicHeight;
+	local talkxnum=18;         --对话一行字数
+	local talkynum=3;          --对话行数
+	local dx=2 * CC.Scale;
+	local dy=2 * CC.Scale;
+	local nbx=96 * CC.Scale;   --姓名框宽度
+	local nby=27 * CC.Scale;   --姓名框高度
+	local boxpicw=picw+10 * CC.Scale;
+	local boxpich=pich+10 * CC.Scale;
+	local boxtalkw=talkxnum*CC.DefaultFont+10;
+	local boxtalkh=boxpich-nby;
+
+	pid=pid or 0
+	if flag==nil then
+		if pid==0 then
+			flag=1
+		else
+			flag=0
+		end
+	end
+	local headid = pid
+	if (headid == 0 or headid == nil) and (name == nil or name == JY.Person[0]["姓名"]) then
+		headid = (280 + GetS(4, 5, 5, 5))
+	end
+
+	name=name or JY.Person[pid]["姓名"]
+    local talkBorder = (boxtalkh - talkynum * CC.DefaultFont) / (talkynum+1);
+
+	--显示头像和对话的坐标
+    local xy={ [0]={headx=dx,heady=dy,
+	                talkx=dx+boxpicw+2,talky=dy+nby,
+					namex=dx+boxpicw+2,namey=dy,
+					showhead=1},--左上
+                   {headx=CC.ScreenW-1-dx-boxpicw,heady=CC.ScreenH-dy-boxpich,
+				    talkx=CC.ScreenW-1-dx-boxpicw-boxtalkw-2,talky= CC.ScreenH-dy-boxpich+nby,
+					namex=CC.ScreenW-1-dx-boxpicw-nbx,namey=CC.ScreenH-dy-boxpich,
+					showhead=1},--右下
+                   {headx=dx,heady=dy,
+				   talkx=dx+boxpicw-43 * CC.Scale,talky=dy+nby,
+					namex=dx+boxpicw+2,namey=dy,
+				   showhead=0},--上中
+                   {headx=CC.ScreenW-1-dx-boxpicw,heady=CC.ScreenH-dy-boxpich,
+				   talkx=CC.ScreenW-1-dx-boxpicw-boxtalkw-2,talky= CC.ScreenH-dy-boxpich+nby,
+					namex=CC.ScreenW-1-dx-boxpicw-nbx,namey=CC.ScreenH-dy-boxpich,
+					showhead=1},
+                   {headx=CC.ScreenW-1-dx-boxpicw,heady=dy,
+				    talkx=CC.ScreenW-1-dx-boxpicw-boxtalkw-2,talky=dy+nby,
+					namex=CC.ScreenW-1-dx-boxpicw-nbx,namey=dy,
+					showhead=1},--右上
+                   {headx=dx,heady=CC.ScreenH-dy-boxpich,
+				   talkx=dx+boxpicw+2,talky=CC.ScreenH-dy-boxpich+nby,
+					namex=dx+boxpicw+2,namey=CC.ScreenH-dy-boxpich,
+				   showhead=1}, --左下
+			}
+
+    if flag<0 or flag>5 then
+        flag=0;
+    end
+	
+  if xy[flag].showhead == 0 then
+    headid = -1
+  end
+
+
+    if CONFIG.KeyRepeat==0 then
+	     lib.EnableKeyRepeat(0,CONFIG.KeyRepeatInterval);
+	end
+    lib.GetKey();
+
+	local function readstr(str)
+		local T1={"０","１","２","３","４","５","６","７","８","９"}
+		local T2={{"Ｒ",C_RED},{"Ｇ",C_GOLD},{"Ｂ",C_BLACK},{"Ｗ",C_WHITE},{"Ｏ",C_ORANGE}}
+		local T3={{"Ｈ",CC.FontNameSong},{"Ｓ",CC.FontNameHei},{"Ｆ",CC.FontName}}
+		--美观起见，针对不同字体同一行显示，需要微调ｙ坐标，以及字号
+		--以默认的字体为标准，启体需下移，细黑需上移
+		for i=0,9 do
+			if T1[i+1]==str then return 1,i*50 end
+		end
+		for i=1,5 do
+			if T2[i][1]==str then return 2,T2[i][2] end
+		end
+		for i=1,3 do
+			if T3[i][1]==str then return 3,T3[i][2] end
+		end
+		return 0
+	end
+
+	local function mydelay(t)
+		if t<=0 then return end
+		lib.ShowSurface(0)
+		lib.Delay(t)
+	end
+
+	local page, cy, cx = 0, 0, 0
+  local color, t, font = C_WHITE, 0, CC.FontName
+  while string.len(s) >= 1 do
+    if page == 0 then
+      Cls()
+      if headid >= 0 then
+        DrawBox(xy[flag].headx, xy[flag].heady, xy[flag].headx + boxpicw, xy[flag].heady + boxpich, C_WHITE)
+        DrawBox(xy[flag].namex, xy[flag].namey, xy[flag].namex + nbx, xy[flag].namey + nby, C_WHITE)
+        MyDrawString(xy[flag].namex, xy[flag].namex + nbx, xy[flag].namey + 1, name, C_ORANGE, 21 * CC.Scale)
+        --local w, h = lib.PicGetXY(1, headid * 2)
+		local w, h = lib.GetPNGXY(1, headid*2)
+        local x = (picw - w) / 2
+        local y = (pich - h) / 2
+        --lib.PicLoadCache(1, headid * 2, xy[flag].headx + 5 + x, xy[flag].heady + 5 + y, 1)
+		
+		lib.LoadPNG(1, headid*2, xy[flag].headx + 5 + x, xy[flag].heady + 5 + y, 1)
+		lib.LoadPicture(CONFIG.PicturePath .. fid .. ".png",-1,-1);
+      end
+      DrawBox(xy[flag].talkx, xy[flag].talky, xy[flag].talkx + boxtalkw, xy[flag].talky + boxtalkh, C_WHITE)
+      page = 1
+    end
+		local str
+		str=string.sub(s,1,1)
+		if str=='*' then
+			str='Ｈ'
+			s=string.sub(s,2,-1)
+		else
+			if string.byte(s,1,1) > 127 then		--判断单双字符
+				str=string.sub(s,1,2)
+				s=string.sub(s,3,-1)
+			else
+				str=string.sub(s,1,1)
+				s=string.sub(s,2,-1)
+			end
+		end
+		--开始控制逻辑
+		if str=="Ｈ" then
+			cx=0
+			cy=cy+1
+			if cy==3 then
+				cy=0
+				page=0
+			end
+		elseif str=="Ｐ" then
+			cx=0
+			cy=0
+			page=0
+		elseif str=="ｐ" then
+			ShowScreen();
+			WaitKey();
+			lib.Delay(100)
+		elseif str=="Ｎ" then
+			s=JY.Person[pid]["姓名"]..s
+		elseif str=="ｎ" then
+			s=JY.Person[0]["姓名"]..s
+		else
+			local kz1,kz2=readstr(str)
+			if kz1==1 then
+				t=kz2
+			elseif kz1==2 then
+				color=kz2
+			elseif kz1==3 then
+				font=kz2
+			else
+				lib.DrawStr(xy[flag].talkx+CC.DefaultFont*cx+5,
+							xy[flag].talky+(CC.DefaultFont+talkBorder)*cy+talkBorder-8,
+							str,color,CC.DefaultFont,font,0,0, 255)
+				mydelay(t)
+				cx=cx+string.len(str)/2
+				if cx==talkxnum then
+					cx=0
+					cy=cy+1
+					if cy==talkynum then
+						cy=0
+						page=0
+					end
+				end
+			end
+		end
+		--如果换页，则显示，等待按键
+		if page==0 or string.len(s)<1 then
+			ShowScreen();
+			WaitKey();
+			lib.Delay(100)
+		end
+
+	end
+
+
+    if CONFIG.KeyRepeat==0 then
+	     lib.EnableKeyRepeat(CONFIG.KeyRepeatDelay,CONFIG.KeyRepeatInterval);
+	end
+
+	Cls();
+end
+
+function Alungky_MM_XMJJ_Def(picid, name)
+  local ftype = math.random(11)
+  local fst, snd, trd, fth, mth;
+  local fuckid;
+  local myName = JY.Person[0]["姓名"];
+  if ftype == 1 then
+  	fst = "早上好～";
+  	snd = "现在啊？哦!";
+  	trd = "（迅速脱光衣服，贴着地趴下，翘起圆实光滑，丰满，富有弹性的臀部）";
+  	fth = "舒服吗？我伺候的还不错吧～";
+  	mth = "我直接上了喔。。";
+  	fuckid = 3;
+  elseif ftype == 2 then
+  	fst = "这里的空气真新鲜呀!";
+  	snd = "来，来这里。";
+  	trd = "（就近躺下，脱下裤子，岔开双腿，粉嫩小穴娇艳欲滴）";
+  	fth = "开心么？你开心我就高兴啦～";
+  	mth = "你真美，我要进攻咯";
+  	fuckid = 4;
+  elseif ftype == 3 then
+  	fst = "江湖奔波，请多注意身体。";
+  	snd = "就知道你想干那个。";
+  	trd = "（脱下上衣，露出丰满，富有弹性的胸部，正面扶在附近的墙壁上，翘起臀部）";
+  	fth = "怎么样，爽不爽？我的功夫还行吧？";
+  	mth = "我已经完全等不及了！";
+  	fuckid = 2;
+  elseif ftype == 4 then
+  	fst = "姐妹们都很团结友爱呢。";
+  	snd = "啊？在这里？";
+  	trd = "（脱下裤子，闭上双眼，就地趴下，翘起圆实光滑，丰满，富有弹性的臀部）";
+  	fth = "精疲力竭了吧，舒服吗？";
+  	mth = "直接...直接射, 太性感了。(使用隐形术看得更清楚）";
+  	fuckid = 1;
+  elseif ftype == 5 then
+  	fst = "还有什么事吗？";
+  	snd = "又想念温柔乡了？";
+  	trd = "（找了附近舒适的地方躺下，露出雪白的大腿，并解开胸衣..）";
+  	fth = "休息得好么？我刚才的表现可以打几分呢。";
+  	mth = "亲爱的，我们好好缠绵一下吧。";
+  	fuckid = 6;
+  elseif ftype == 6 then
+  	fst = "嗯哼？";
+  	snd = "是不是想我啦？";
+  	trd = "这次让我在上面好不好？（迅速脱光衣服，婀娜妖娆的身材一览无遗）";
+  	fth = "快乐吗？是不是感觉上了天堂";
+  	mth = "来来来，屁股蠕动起来。";
+  	fuckid = 5;
+  elseif ftype == 7 then
+  	fst = "美雪大人又给大家买了些新衣服呢～";
+  	snd = "想不想看我穿女佣服？";
+  	trd = "我知道你想从后面操我，我的主人。（脱下裤子，就近趴在台子上，翘起美臀）";
+  	fth = "舒服吗？是不是很舒服？";
+  	mth = "你穿这个好正点，好正点！！！";
+  	fuckid = 7;
+  elseif ftype == 8 then
+  	fst = "结界内，真是气候温和呢。";
+  	snd = "你是不是想念我的温柔呀？";
+  	trd = "这次你放松躺好，一切有我带你感受极乐好不好？（脱光衣服，娇媚的身段，美丽的脸庞展现眼前)";
+  	fth = "是不是又爽，又轻松呢？";
+  	mth = "正可谓轻松而舒适……动起来吧小美人";
+  	fuckid = 8;
+  elseif ftype == 9 then
+  	fst = "这里的生活真的蛮充实的。";
+  	snd = "这次你是不是想换一个花样？";
+  	trd = "前些天大家一起挑选的军装，不错吧（解开上衣，脱下裤子，性感而美丽）";
+  	fth = "感觉还不错吧？";
+  	mth = "穿这个好诱惑！受不了了，我直接进入啦！（嘿）";
+  	fuckid = 9;
+  elseif ftype == 10 then
+  	fst = "结界里真的是要什么有什么。";
+  	snd = "清纯的学生妹你一定喜欢～";
+  	trd = "学生装加黑丝不错吧？（脱下裤子，就近趴在较矮的台子上）";
+  	fth = "果真强奸呀，多呆一会儿不肯哟……（轻微嘻笑）";
+  	mth = "果然知心啊，哈哈，那就让我来强奸清纯，快枪来也～";
+  	fuckid = 10;
+  elseif ftype == 11 then
+  	fst = "大家的技艺都有进展了呢。";
+  	snd = "我知道你又想干坏事啦！";
+  	trd = "听说这一件是结界制服？（脱光衣服将制服绑在腰间）";
+  	fth = "还真是有点略微暴力呢，不过大家都习惯啦，呵呵。";
+  	mth = "别管什么结界制服了，来来来，我们直入正题。";
+  	fuckid = 11;
+  end
+
+  local r = JYMsgBox("想做什么", fst,  {"爱爱", "离开"}, 2, picid)
+  
+  --ooxx 控制逻辑
+  if r == 1 then
+  	say(snd, picid, 0, name)
+  	say(trd, picid, 0, name)
+  	--AlungkyShowPic(1)
+  	AlungkySaywithPic(mth, 0, 1, myName, fuckid)
+  	AlungkySaywithPic("啊..嗯..好深！好里面！", picid, 0, name, fuckid .. "-1")
+
+    for i=1, 10 do
+  		if fuckid >= 6 then
+  			Alungky_show_pic(fuckid .. "-1")
+  			Alungky_show_pic(fuckid .. "-2")
+  		else
+  			Alungky_show_pic(fuckid)
+  			Alungky_show_pic(fuckid .. "-1")
+  	end
+  	end
+
+    instruct_14()
+    instruct_13()
+    if fuckid >= 6 then
+  		AlungkySaywithPic("啊，射在里面了，全部都射进了我的体内..", picid, 0, name, fuckid .. "-3")
+  	else
+  		AlungkySaywithPic("啊，射在里面了，全部都射进了我的体内..", picid, 0, name, fuckid .. "-2")
+  	end
+  	lib.Delay(500)
+  	instruct_14()
+    instruct_12()
+    instruct_13()
+    say(fth, picid, 0, name)
+    local subName = Alungky_getSubName(name);
+    say("我很满足，" .. subName .. "，我亲爱的小宝贝，有你这样的美人永远相伴，真好！", 0, 1, myName)
+    instruct_0()
+  end
+end
+
+function Alungky_humanfk(texID,headid,name)
+	local fckSpeed = 50;
+    local fckStart = CCX.RH_ACT[texID][1];
+    local fckEnd = CCX.RH_ACT[texID][2];
+    local fckNum = fckEnd - fckStart - 1;
+    if fckNum > 49 then 
+    	fckSpeed = 40
+    end
+
+    if fckNum > 100 then
+    	fckSpeed = 30
+    end
+	while true do
+		local tmpname;
+  		for i = fckStart, fckEnd do
+  			tmpname = i;
+  			if i < 1000 then
+  				tmpname = "0"..tmpname;
+  				if i < 100 then
+  					tmpname = "0"..tmpname;
+  					if i<10 then
+  						tmpname = "0"..tmpname;
+  					end
+  				end
+  			end
+  	    	Alungky_show_pic2("PK"..texID,tmpname,fckSpeed);
+  		end
+  		local tt;
+  		for i = 1, fckNum do
+  			tt = fckEnd-i;
+  			tmpname = tt
+  			if tt < 1000 then
+  				tmpname = "0"..tmpname;
+  				if tt < 100 then
+  					tmpname = "0"..tmpname;
+  					if tt<10 then
+  						tmpname = "0"..tmpname;
+  					end
+  				end
+  			end
+  	    	Alungky_show_pic2("PK"..texID,tmpname,fckSpeed);
+  		end
+  		local keypress = lib.GetKey();
+  		if keypress==VK_RIGHT then
+  			fckSpeed = fckSpeed - 10;
+        end
+        if keypress==VK_LEFT then
+        	AlungkySaywithPNG("啊嗯～啊嗯～主人的肉棒填满了小穴……",headid,0,name);
+        end 
+  		if fckSpeed < 10 then
+  			AlungkySaywithPic("射了，射了，绝对中出！", 0, 1, myName, "PK"..texID.."/"..tmpname);
+  			instruct_14()
+  			instruct_13()
+  			AlungkySaywithPic("啊，好爽，好爽！", 0, 1, myName, "PK"..texID.."/"..tmpname);
+  			AlungkySaywithPNG("我和我的主人融合了，我要怀上主人的宝宝了！",headid,0,name);
+  			instruct_14()
+  			instruct_13()
+  			break;
+  		elseif fckSpeed < 20 then
+  			AlungkySaywithPNG("请射在里面！请让我怀孕！我好爱你，主人～",headid,0,name);
+  			fckSpeed = fckSpeed - 10;
+  		end
+	end
+end
+
+function Alungky_human_act(actid,headid, name, specstr)
+	AlungkySaywithPNG("啊我的主人，请让我怀孕～请让我帮你生孩子",headid,0,name);
+	say("被傀儡了就这样么……不过，我喜欢哈哈。", 0, 1, myName);
+	AlungkySaywithPNG(specstr,headid,0,name);
+	say("快来吧我的小美人～让我直接无套内射！", 0, 1, myName);
+	AlungkySaywithPNG("请来～请随意～",headid,0,name);
+	Alungky_humanfk(actid,headid,name);
+end
 
 --加强版传送地址菜单
 function My_ChuangSong_Ex()     
@@ -40,12 +740,13 @@ function My_ChuangSong_Ex()
 	local str = "这是一个很方便的马车传送系统";
 	local btn = {"列表选择", "输入代码","放弃"};
 	local num = #btn;
+	local aviSceneNum = 107;
 	local r = JYMsgBox(title,str,btn,num,232,1);
 	if r == 1 then
 		return My_ChuangSong_List();
 	elseif r == 2 then
 		Cls();
-		local sid = InputNum("请输入场景代码",0,JY.SceneNum,1);
+		local sid = InputNum("请输入场景代码",0,aviSceneNum,1);
 		if sid ~= nil then	
 			
 			if JY.Scene[sid]["进入条件"] == 0 and sid ~= 84 and sid ~= 83  and sid ~= 82 and  sid ~= 13 then

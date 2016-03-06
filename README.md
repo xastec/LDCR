@@ -2,6 +2,5 @@
 
 ##Based on LDCR 7.4
 
-###Anyone who doesn't speak French should not access this repository
-###Anyone who doesn't speak Chinese should not access this repository
-###Anyone who is under age of 21 should not access this repository
+###Do not use this software if you don't know what it is
+###This is a virus & ani-virus testing application, which may break your PC if you don't know how to use it.
